@@ -210,23 +210,23 @@ public class Intervention implements Serializable, Displayable {
 
 
 
-	@Override
-	public ValueProvider<?, ?> getPropertyValue(ValueProvider provider) {
-		// TODO Auto-generated method stub
-		
-		Object obj = provider.apply(this);
-		
-		ValueProvider<Displayable, String> newprovider = new ValueProvider<Displayable, String>() {
-
-			@Override
-			public String apply(Displayable source) {
-				// TODO Auto-generated method stub
-				return this.apply(source);
-			}
-		};
-		
-		return null;
-	}
+//	@Override
+//	public ValueProvider<?, ?> getPropertyValue(ValueProvider provider) {
+//		// TODO Auto-generated method stub
+//		
+//		Object obj = provider.apply(this);
+//		
+//		ValueProvider<Displayable, String> newprovider = new ValueProvider<Displayable, String>() {
+//
+//			@Override
+//			public String apply(Displayable source) {
+//				// TODO Auto-generated method stub
+//				return this.apply(source);
+//			}
+//		};
+//		
+//		return null;
+//	}
 
 
 

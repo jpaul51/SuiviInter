@@ -1,11 +1,13 @@
 package com.piyou.backend.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
-public class Person {
+public class Person implements Serializable, Displayable {
 
 	@Id
 	@GeneratedValue
@@ -68,7 +70,7 @@ public class Person {
 
 	@Override
 	public String toString() {
-		return "Person [id=" + id + ", login=" + login + ", name=" + firstName + "]";
+		return new StringBuilder(firstName).append(" ").append(lastName).toString();
 	}
 
 	@Override
@@ -107,7 +109,13 @@ public class Person {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String getLabel() {
+		return firstName.concat(" ").concat(lastName);
+	}
 	
+
 	
 	
 }

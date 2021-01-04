@@ -2,6 +2,7 @@ package com.piyou.views.main;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -44,8 +45,10 @@ public class PersonDetailView extends Div implements AfterNavigationObserver {
 	private Grid<Person> gridPerson;
 	
 	TextField txtUserId = new TextField();
-	TextField txtPersonName = new TextField();
+	TextField txtPersonFirstName = new TextField();
 	TextField txtPersonLogin = new TextField();
+	TextField txtPersonMail = new TextField();
+	TextField txtPersonName = new TextField();
 	
 	Label labelPersonId = new Label();
 	
@@ -66,30 +69,36 @@ public class PersonDetailView extends Div implements AfterNavigationObserver {
 		gridPerson = new Grid<>();
 	    
 		gridPerson.addClassName("my-grid");
-	        
-		gridPerson.getStyle().set("margin", "var(--lumo-space-m)");
-	    
+		gridPerson.getStyle().set("margin", "var(--lumo-space-m)"); 
 		gridPerson.addThemeVariants(GridVariant.LUMO_COLUMN_BORDERS);
 		gridPerson.setHeightFull();
 		
-
-
         splitLayout = new SplitLayout();
         splitLayout.setSizeFull();
         
         Column cUserId = gridPerson.addColumn(Person::getId);
         cUserId.setHeader("Id");
         
-        Column cUserName = gridPerson.addColumn(Person::getFirstName).setHeader("Prénom");
+        Column cUserFirstName = gridPerson.addColumn(Person::getFirstName).setHeader("Prénom");
+        gridPerson.addColumn(Person::getLastName).setHeader("Nom");
         Column cUserLogin = gridPerson.addColumn(Person::getLogin).setHeader("Login");
+        
+        
         
         binder = new Binder<>(Person.class);
 
-
+        txtUserId.setVisible(false);
+        
         binder.forField(txtUserId).withConverter(new StringToLongConverter("person id error")).bind( Person::getId, Person::setId);
-        binder.forField(txtPersonName).bind(Person::getFirstName, Person::setFirstName);
+        binder.forField(txtPersonFirstName).bind(Person::getFirstName, Person::setFirstName);
+        binder.forField(txtPersonName).bind(Person::getLastName, Person::setLastName);
         binder.forField(txtPersonLogin).bind(Person::getLogin, Person::setLogin);
+        binder.forField(txtPersonMail).bind(Person::getEmail, Person::setEmail);
+//        binder.forField(txtPersonLogin).bind(Person::getLogin, Person::setLogin);
 
+        binder.bindInstanceFields(this);
+
+        
         /**
          * GridLayout
          */
@@ -113,7 +122,7 @@ public class PersonDetailView extends Div implements AfterNavigationObserver {
     		populateForm(null);
     		gridPerson.deselectAll();
     		gridPerson.asSingleSelect().clear();
-    		splitLayout.getSecondaryComponent().setVisible(true);
+    		
     	});
     	
     	toolbar.getStyle().set("padding", "var(--lumo-space-s) var(--lumo-space-l)");
@@ -126,7 +135,16 @@ public class PersonDetailView extends Div implements AfterNavigationObserver {
         vl.getStyle().set("padding", "0px");
         vl.getStyle().set("overflow-x", "hidden");
 
-        
+        gridPerson.addSelectionListener(c -> {
+        	
+        	Optional<Person> oPerson = c.getFirstSelectedItem();
+        	if(oPerson.isPresent()) {
+        		c.getSource().select(oPerson.get());
+            	populateForm(oPerson.get());
+
+        	}
+//        	populateForm(oPerson.get());
+        });
 
         splitLayout.addToPrimary(vl);
         
@@ -139,11 +157,13 @@ public class PersonDetailView extends Div implements AfterNavigationObserver {
 	
     private void populateForm(Person value) {
         // Value can be null as well, that clears the form
+    	splitLayout.getSecondaryComponent().setVisible(true);
         binder.readBean(value);
         currentPerson = value;
 
         if(value != null) {
         	labelPersonId.setText("Utilisateur n° "+value.getId().toString());
+        	
         }else {
         	labelPersonId.setText("Nouvel utilisateur");
         }
@@ -228,10 +248,17 @@ public class PersonDetailView extends Div implements AfterNavigationObserver {
         formLayout.add(txtUserId);
         txtUserId.setLabel("ID");
         
+        formLayout.add(txtPersonFirstName);
+        txtPersonFirstName.setLabel("Prénom");
+        
         formLayout.add(txtPersonName);
         txtPersonName.setLabel("Nom");
         
+        formLayout.add(txtPersonMail);
+        txtPersonMail.setLabel("Email");
+        
          
+        
 //        panelDiv.add(user);
         formLayout.add(txtPersonLogin);
         txtPersonLogin.setLabel("Login");
@@ -255,7 +282,7 @@ public class PersonDetailView extends Div implements AfterNavigationObserver {
 	@Override
 	public void afterNavigation(AfterNavigationEvent event) {
 		// TODO Auto-generated method stub
-		listPerson = personService.getAll();
+//		listPerson = personService.getAll();
 		
 		gridPerson.setItems(listPerson);
 		gridPerson.setVisible(true);

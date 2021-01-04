@@ -5,20 +5,30 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-
-import com.vaadin.flow.function.ValueProvider;
+import javax.persistence.ManyToOne;
 
 @Entity
 public class Project implements Serializable, Displayable {
 
 
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4807833043624930166L;
+
 	@Id
 	@GeneratedValue
+	@Name("id")
 	private Long id;
+	
+	@Name("name")
 	private String name;
+	@Name("description")
 	private String description;
 	
+	@ManyToOne
+	private Person projectManager;
 	
 	public Project() {
 		
@@ -27,8 +37,6 @@ public class Project implements Serializable, Displayable {
 	public Project(String projectName) {
 		this.name = projectName;
 	}
-	
-	
 	
 	
 	public Long getId() {
@@ -49,15 +57,32 @@ public class Project implements Serializable, Displayable {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	
+	
+
+	public Person getProjectManager() {
+		return projectManager;
+	}
+
+	public void setProjectManager(Person projectManager) {
+		this.projectManager = projectManager;
+	}
+
+	
+
+	@Override
+	public String getLabel() {
+		return this.getName();
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -67,35 +92,22 @@ public class Project implements Serializable, Displayable {
 		if (getClass() != obj.getClass())
 			return false;
 		Project other = (Project) obj;
-		if (description == null) {
-			if (other.description != null)
-				return false;
-		} else if (!description.equals(other.description))
-			return false;
 		if (id == null) {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
 		return true;
 	}
 
 	@Override
-	public String getLabel() {
-		// TODO Auto-generated method stub
-		return this.getName();
+	public String toString() {
+		return name;
 	}
 
-	@Override
-	public ValueProvider getPropertyValue(ValueProvider provider) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
+
+
 	
 	
 	

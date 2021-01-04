@@ -3,13 +3,19 @@ package com.piyou.views.main;
 import java.util.Arrays;
 import java.util.Optional;
 
+import com.piyou.views.about.AboutView;
+import com.piyou.views.descriptors.InterventionDescriptor;
+import com.piyou.views.descriptors.PersonDescriptor;
+import com.piyou.views.descriptors.ProjectDescriptor;
+import com.piyou.views.helloworld.HelloWorldView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -18,13 +24,11 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouteConfiguration;
+import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
-import com.piyou.views.about.AboutView;
-import com.piyou.views.helloworld.HelloWorldView;
-import com.piyou.views.main.MainView;
 
 /**
  * The main view is a top-level placeholder for other views.
@@ -33,9 +37,13 @@ import com.piyou.views.main.MainView;
 @PWA(name = "SuiviInter", shortName = "SuiviInter",  enableInstallPrompt = false)
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 @CssImport("./styles/views/main/main-view.css")
-public class MainView extends AppLayout {
+public class MainView extends AppLayout implements RouterLayout {
 
-    private final Tabs menu;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 11111111L;
+	private final Tabs menu;
     private H1 viewTitle;
 
     public MainView() {
@@ -81,15 +89,59 @@ public class MainView extends AppLayout {
         tabs.addThemeVariants(TabsVariant.LUMO_MINIMAL);
         tabs.setId("tabs");
         tabs.add(createMenuItems());
+    	
+    	Div menuDiv = new Div();
+    	RouterLink rt = new RouterLink();
+    	rt.setText("Projet");
+    	menuDiv.add(rt);
+    	menuDiv.add(new RouterLink());
+
+    	
+    	Div menuPersonDiv = new Div();
+    	RouterLink rtPerson = new RouterLink();
+    	rtPerson.setText("Users");
+    	menuPersonDiv.add(rtPerson);
+    	
+    	Div menuInterDiv = new Div();
+    	RouterLink rtInter = new RouterLink();
+    	rtInter.setText("Interventions");
+    	menuInterDiv.add(rtInter);
+    	
+    	menuInterDiv.addClickListener(c -> {
+    		DetailViewFactory dvf = new DetailViewFactory(InterventionDescriptor.class);
+    		dvf.show();
+    	});
+    	
+    	menuPersonDiv.addClickListener(e -> {
+    		DetailViewFactory dvf = new DetailViewFactory(PersonDescriptor.class);
+    		dvf.show();
+    	});
+    	
+    	
+    	menuDiv.add(new RouterLink());
+    	menuDiv.addClickListener(e -> {
+    		DetailViewFactory dvf = new DetailViewFactory(ProjectDescriptor.class);
+    		dvf.show();
+    	});
+    	
+    	tabs.add(createTab(menuDiv), createTab(menuPersonDiv), createTab(menuInterDiv));
+
+
         return tabs;
     }
 
     private Component[] createMenuItems() {
+    	
+    	
         RouterLink[] links = new RouterLink[] {
             new RouterLink("Hello World", HelloWorldView.class),
             new RouterLink("About", AboutView.class),
             new RouterLink("Interventions", InterventionsDetailView.class),
-            new RouterLink("Utilisateurs", PersonDetailView.class)
+//            new RouterLink("Utilisateurs", PersonDetailView.class), 
+//            new RouterLink("bim", DetailView.class, ProjectDescriptor.class.getCanonicalName()), 
+//            new RouterLink("bim", DetailView.class, PersonDescriptor.class.getCanonicalName()), 
+            
+//            new RouterLink("Test", dvf.dv.getClass())
         };
         return Arrays.stream(links).map(MainView::createTab).toArray(Tab[]::new);
     }
@@ -125,6 +177,17 @@ public class MainView extends AppLayout {
     }
 
     private String getCurrentPageTitle() {
-        return getContent().getClass().getAnnotation(PageTitle.class).value();
+//    	return "";
+    	
+    	PageTitle pageTitle = getContent().getClass().getAnnotation(PageTitle.class);
+//    	String staticPageTitle = value(); 
+        if(pageTitle != null) {
+        	return pageTitle.value();
+        }
+        else {
+        	return ((SplitView)getContent()).getPageTitle();
+        	
+        }
+    	 
     }
 }

@@ -1,11 +1,11 @@
 package com.piyou.views.helloworld;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.vaadin.artur.helpers.CrudServiceDataProvider;
-import org.vaadin.tinymce.TinyMce;
+import org.vaadin.alump.lazylayouts.LazyVerticalLayout;
 
 import com.piyou.backend.model.Person;
 import com.piyou.backend.services.PersonService;
+import com.piyou.views.components.RichTextEditorComponent;
 import com.piyou.views.main.MainView;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.button.Button;
@@ -24,6 +24,8 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Panel;
 
 @Route(value = "hello", layout = MainView.class)
 @RouteAlias(value = "", layout = MainView.class)
@@ -75,7 +77,23 @@ public class HelloWorldView extends Div {
         createGridLayout(splitLayout);
         createEditorLayout(splitLayout);
 
-        add(splitLayout);
+//        add(splitLayout);
+        
+        FormLayout f = new FormLayout();
+        LazyVerticalLayout layout = new LazyVerticalLayout();
+
+//        RichTextEditorComponent r = new RichTextEditorComponent(null);
+      
+//        layout.addComponent((Component) r.getComponent());
+//        layout.addComponent(f);
+        
+//        Panel p = new Panel();
+//        p.setContent(layout);
+        
+//        this.add(p);
+        
+//        layout.la
+        
     }
 
     private void createEditorLayout(SplitLayout splitLayout) {
@@ -95,13 +113,13 @@ public class HelloWorldView extends Div {
 //		MainPage page = new MainPage();
 //		page.setContent("hophop2");
 
-        TinyMce t = new TinyMce();
+//        TinyMce t = new TinyMce();
 //        editorDiv.add(tt);
 //        test.addC
         
-        formLayout.addFormItem(t, "Details");
+//        formLayout.addFormItem(t, "Details");
         editorDiv.add(formLayout);
-        t.getElement().getClassList().add("full-width");
+//        t.getElement().getClassList().add("full-width");
         
         addFormItem(editorDiv, formLayout, normalTextArea, "normalTextArea");
         

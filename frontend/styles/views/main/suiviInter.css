@@ -43,13 +43,26 @@ color: var(--lumo-body-text-color);
   width: 400px;
 }
 
-.button-layout {
+.header-layout {
   width: 100%;
   flex-wrap: wrap-reverse;
-  justify-content: flex-end;
+/*   justify-content: flex-end; */
   background-color: var(--lumo-contrast-5pct);
   padding: var(--lumo-space-s) var(--lumo-space-l);
  
+}
+.label-layout {
+/* 	align-self:flex-start; */
+	align-items:center;
+	width:45%;
+	height:100%;
+	align-items:middle;
+	padding-top:var(--lumo-space-s);
+}
+	
+.button-layout {
+	justify-content: flex-end;	
+	width:52%;
 }
 
 #master-detail-view #wrapper {

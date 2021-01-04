@@ -2,14 +2,30 @@ package com.piyou.backend.model;
 
 import java.io.Serializable;
 
-import com.vaadin.flow.function.ValueProvider;
 
-public interface Displayable<T> extends Serializable{
+public interface Displayable extends Serializable{
 
+	
+	public Long getId();
 	
 	public String getLabel();
 	
-	public ValueProvider<T,?> getPropertyValue( ValueProvider<? extends T,?> provider);
+	
+	
+//	public void setValue();
+	
+	public default  String getClazz() {
+		return Displayable.class.getCanonicalName();
+	}
+	
+	
+	
+	
+//	@Transient
+//	public default List<Method> getMethodList() {
+//		return Arrays.asList(getClass().getDeclaredMethods());
+//	}
+//	public ValueProvider<T,?> getPropertyValue( ValueProvider<? extends T,?> provider);
 
 //	ValueProvider<? extends Serializable, ?> getPropertyValue(ValueProvider<?, ?> provider);
 	

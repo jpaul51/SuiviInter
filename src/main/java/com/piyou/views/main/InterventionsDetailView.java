@@ -1,12 +1,14 @@
 package com.piyou.views.main;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.piyou.backend.model.Displayable;
 import com.piyou.backend.model.Intervention;
 import com.piyou.backend.model.Person;
 import com.piyou.backend.model.Project;
@@ -71,10 +73,9 @@ public class InterventionsDetailView extends Div implements AfterNavigationObser
     private DateTimePicker createDate = new DateTimePicker();
     private DateTimePicker dateLastUpdate = new DateTimePicker();
     private TimePicker pickerDuration = new TimePicker();
-//    private PasswordField password = new PasswordField();
 
     private Button cancel = new Button("Cancel");
-    private Button save = new Button("Save");
+    private Button btnSave = new Button("Save");
 
     private Binder<Intervention> binder;
     
@@ -106,43 +107,23 @@ public class InterventionsDetailView extends Div implements AfterNavigationObser
         interventions.addThemeVariants(GridVariant.LUMO_COLUMN_BORDERS);
         interventions.setHeightFull();
         
-        
-        
-        
         Column c = interventions.addColumn(Intervention::getId);
         c.setVisible(false);
         Column cUser = interventions.addColumn(inter -> inter.getOwner().getFirstName() == null ? "" : inter.getOwner().getFirstName())
         .setHeader("User");
         cUser.setVisible(false);
-  
-//        new RichTextEditorBuilder(inter.getProject().getName());
-//        Column<Intervention> cProject =  addColumn(interventions,"Projet", Intervention::getCommentaire);//TEST
-//        cProject.setAutoWidth(false);
-//        cProject.setEx
-//        cProject.setWidth("50px");
-      
         
         Column cDescription = interventions.addColumn(Intervention::getDescription).setHeader("Description");
         cDescription.setWidth("200px");
-        
-//        Column cDate = interventions.addColumn(new LocalDateRenderer<>(
-//        		Intervention::getLastModifiedDate,DateTimeFormatter.ofLocalizedDate(
-//                FormatStyle.MEDIUM)));
-////.setHeader("Modifié le");
+
         Column cLastModifiedDate = interventions.addColumn(new LocalDateTimeRenderer<>(
                 Intervention::getLastModifiedDate,
                 "dd/MM/yyyy HH:mm"))
             .setHeader("Modifié le");
         
         cLastModifiedDate.setWidth("50px");
-//        cDate.fo
         Column cDuration = interventions.addColumn(i -> i.getDuration() == null ? 0 : i.getDuration().getMinute()).setHeader("Durée");
         cDuration.setWidth("50px");
-        
-        
-
-                
-//                cProject.setWidth("75px");
         
         Column cCommentaire = interventions.addColumn(new ComponentRenderer<>(inter -> {
         		Html content = new Html(new StringBuilder("<div class='htmlContainer'>")
@@ -153,16 +134,12 @@ public class InterventionsDetailView extends Div implements AfterNavigationObser
         })).setHeader("Commentaire");
         
         cCommentaire.setWidth("200px");
-        
         createDate.setReadOnly(true);
-        
-     
 
         // Configure Form
         binder = new Binder<>(Intervention.class);
-
+        
         // Bind fields. This where you'd define e.g. validation rules
-        binder.bindInstanceFields(this);
         binder.forField(user).bind(Intervention::getOwner, Intervention::setOwner);
         binder.forField(createDate).bind(Intervention::getCreatedDate, Intervention::setCreatedDate);
         binder.forField(dateLastUpdate).bind(Intervention::getLastModifiedDate, Intervention::setLastModifiedDate);
@@ -170,6 +147,8 @@ public class InterventionsDetailView extends Div implements AfterNavigationObser
         binder.forField(ckDetails).bind(Intervention::getCommentaire, Intervention::setCommentaire);
         binder.forField(project).bind(Intervention::getProject, Intervention::setProject);
         binder.forField(pickerDuration).bind(Intervention::getDuration, Intervention::setDuration);
+        binder.bindInstanceFields(this);
+
 //        binder.bind(Intervention::getDescription, description);
         // note that password field isn't bound since that property doesn't exist in
         // Employee
@@ -181,35 +160,7 @@ public class InterventionsDetailView extends Div implements AfterNavigationObser
         createGridLayout(splitLayout);
         createEditorLayout(splitLayout);
 
-        //when a row is selected or deselected, populate form
-        
-//        interventions.adds
-//        ((GridMultiSelectionModel)interventions.getSelectionModel()).setDeselectAllowed(false);
-        
-//        interventions.getSelectionModel().g
-//        ((SelectionListener)interventions.getSelectionModel()).
-//        interventions.getSelectionModel().addSelectionListener(e->{
-//        	e.getFirstSelectedItem().ifPresent(i ->{
-//        		if(i != null){
-//	            	populateForm(i);
-//	            	splitLayout.getSecondaryComponent().setVisible(true);
-//	            	splitLayout.setSplitterPosition(70);
-//        		}
-//        	});
-//        	});
-//        });
-         
-//        Optional<Element> splitter = splitLayout.getElement().getChildren().filter(e -> {
-//        	 return "splitter".equals(e.getAttribute("id"));
-//        	
-//        }).findAny();
-//        
-//       if(splitter.isPresent()){
-//    	   splitter.get().getClassList().add("customSplitter");
-//       }
-//        splitLayout.set
         interventions.addSelectionListener(e->{
-//        interventions.addItemClickListener(e ->{
         	Optional<Intervention> oInter = e.getFirstSelectedItem();
         	if(oInter.isPresent()) {
         		e.getSource().select(oInter.get());
@@ -217,36 +168,21 @@ public class InterventionsDetailView extends Div implements AfterNavigationObser
             	splitLayout.getSecondaryComponent().setVisible(true);
             	splitLayout.setSplitterPosition(70);
         	}
-        	
-        	
         });
         
         GridSingleSelectionModel<Intervention> m = (GridSingleSelectionModel<Intervention>) interventions.getSelectionModel();
         m.setDeselectAllowed(false);
-//        interventions.asSingleSelect().addValueChangeListener(event -> {
-//        	
-//
-//        	
-//        });
-        
+
         add(splitLayout);
         
-    
-		
-        
-        
-        // the grid valueChangeEvent will clear the form too
+ 
         cancel.addClickListener(e -> {
         	interventions.asSingleSelect().clear();
-//        	splitLayout.setSplitterPosition(100);
         	splitLayout.getSecondaryComponent().setVisible(false);
         	});
 
-        save.addClickListener(e -> {
-        	
-//        	binder.bea
-//        	System.out.println(currentInter.toString());
-        	
+        btnSave.addClickListener(e -> {
+
         	try {
         		
         		LocalDateTime updatedDate = LocalDateTime.now();
@@ -255,14 +191,13 @@ public class InterventionsDetailView extends Div implements AfterNavigationObser
         			currentInter.setCreatedDate(updatedDate);
         			createDate.setValue(updatedDate);
         		}
-        	System.out.println(currentInter.getDuration());
         		binder.writeBean(currentInter);
         		
         		currentInter.setLastModifiedDate(updatedDate);
 				
 				boolean isNew = Objects.isNull(currentInter.getId());
 				
-				service.saveInter(currentInter);
+				service.update(currentInter);
 				populateForm(currentInter);
 				if( !isNew) {
 					interventions.getDataProvider().refreshItem(currentInter);
@@ -271,7 +206,6 @@ public class InterventionsDetailView extends Div implements AfterNavigationObser
 					interventions.setItems(interList);
 				}
 			} catch (ValidationException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
    
@@ -280,14 +214,7 @@ public class InterventionsDetailView extends Div implements AfterNavigationObser
       
     }
     
-    
-    private Column<Intervention> addColumn(Grid<Intervention> interList, 
-			ValueProvider<Intervention, ?> valueProvider) {
-    	
-    	
-				return null;
-    	
-    }
+ 
     
 	public  <V extends String, Intervention> Column<Intervention> addColumn(Grid<Intervention> grid, String header, 
 			ValueProvider<Intervention, String> valueProvider) 
@@ -431,8 +358,8 @@ public class InterventionsDetailView extends Div implements AfterNavigationObser
         buttonLayout.setWidthFull();
         buttonLayout.setSpacing(true);
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonLayout.add(headerLayout, cancel, save);
+        btnSave.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        buttonLayout.add(headerLayout, cancel, btnSave);
 //        headerLayout.add(buttonLayout);
         editorDiv.add(buttonLayout);
     }
@@ -445,9 +372,6 @@ public class InterventionsDetailView extends Div implements AfterNavigationObser
     	toolbar.getElement().getClassList().add("button-layout");
     	
     	HorizontalLayout hl = new HorizontalLayout();
-//    	hl.setSpacing(true);
-//    	hl.th
-    	
    
     	hl.setWidthFull();
     	hl.setAlignItems(Alignment.END);
@@ -473,16 +397,6 @@ public class InterventionsDetailView extends Div implements AfterNavigationObser
         vl.getStyle().set("padding", "0px");
         vl.getStyle().set("overflow-x", "hidden");
 
-        
-        
-//        wrapper.add(vl);
-//        wrapper.add(toolbar);
-//        wrapper.setId("wrapper");
-//        wrapper.setWidthFull();
-//        wrapper.setHeight("50%");
-//        wrapper.getStyle().set("overflow", "hidden");
-//        wrapper.add(interventions);
-//        splitLayout.addToPrimary(toolbar);
         splitLayout.addToPrimary(vl);
     }
 
@@ -493,14 +407,14 @@ public class InterventionsDetailView extends Div implements AfterNavigationObser
         // Lazy init of the grid items, happens only when we are sure the view will be
         // shown to the user
     	
-    	interList = service.getInters();
-    	List<Person> personList = personService.getAll();
+    	interList = service.getAll();
+    	List<Displayable> personList = personService.getAll();
 
-    	user.setItems(personList);
+//    	user.setItems(personList);
     	user.setItemLabelGenerator(Person::getFirstName);
     	
-    	List<Project> projects = projectService.getAll();
-    	project.setItems(projects);
+    	List<? extends Displayable> projects = projectService.getAll();
+    	project.setItems((Collection<Project>) projects);
     	project.setItemLabelGenerator(Project::getName);
     	
         interventions.setItems(interList);

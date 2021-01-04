@@ -2,30 +2,31 @@ package com.piyou.backend.services;
 
 import java.util.List;
 
-import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import com.piyou.backend.model.Intervention;
+import com.piyou.backend.model.Displayable;
 import com.piyou.backend.repository.InterventionRepository;
 
-@Service
-public class InterventionService {
+@Service("Intervention")
+public class InterventionService implements DisplayableService {
 
 	
 	@Autowired
 	InterventionRepository interRepo;
-	
-	
-	@Transactional
-	public void saveInter(Intervention inter) {
-		interRepo.save(inter);
+
+	@Override
+	public <Intervention extends Displayable> List<Intervention> getAll() {
+		return (List<Intervention>) interRepo.findAll();
 	}
-	
-	public List<Intervention> getInters(){
-		return interRepo.findAll(Sort.by("createdDate")); 
+
+	@Override
+	public <I extends Displayable> void update(I d) {
+		interRepo.saveOne( (com.piyou.backend.model.Intervention) d);
 	}
-	
+
+	@Override
+	public <T extends Displayable> void delete(T d) {
+		interRepo.delete((com.piyou.backend.model.Intervention) d);
+	}
 }
