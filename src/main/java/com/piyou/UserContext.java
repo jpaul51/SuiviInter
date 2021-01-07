@@ -1,17 +1,25 @@
 package com.piyou;
 
-import com.piyou.backend.model.Displayable;
+import com.piyou.views.main.AbstractView;
 
 public class UserContext {
 
-	private Class<? extends Displayable> currentClass;
+	private Class<? extends com.piyou.views.model.Application> currentClass;
+	private AbstractView view;
 
-	public Class<? extends Displayable> getCurrentClass() {
+	public Class<? extends com.piyou.views.model.Application> getCurrentClass() {
 		return currentClass;
 	}
 
-	public void setCurrentClass(Class<? extends Displayable> currentClass) {
-		this.currentClass = currentClass;
+	public void setCurrentClass(Class<? extends com.piyou.views.model.Application> clazz) {
+		this.currentClass = clazz;
+	}
+	
+	public AbstractView getCurrentView() {
+		return view;
+	}
+	public void setCurrentView(AbstractView view) {
+		this.view = view;
 	}
 	
 	

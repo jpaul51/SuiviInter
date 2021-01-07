@@ -41,6 +41,7 @@ import com.piyou.views.descriptors.EAppFieldsTranslation;
 import com.piyou.views.descriptors.InvalidActionDescriptorException;
 import com.piyou.views.descriptors.InvalidFieldDescriptorException;
 import com.piyou.views.descriptors.MainEntity;
+import com.piyou.views.helloworld.PushyView;
 import com.piyou.views.model.Action;
 import com.piyou.views.model.ActionType;
 import com.piyou.views.model.Application;
@@ -51,6 +52,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyModifier;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -107,28 +109,43 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 
 	private Binder<Displayable> binder;
 
-	private Button cancel = new Button("Cancel");
-	private Button btnSave = new Button("Save");
-	private Button btnDelete = new Button("Delete");
+	private Button cancel ;
+	private Button btnSave ;
+	private Button btnDelete;
 
 	Application application;
 
 	FormLayout formLayout = new FormLayout();
-	List<SuperComponentInterface<?,? extends Component>> formComponents = new ArrayList<>();
+	List<SuperComponentInterface<?,? extends Component>> formComponents;
 
-	HashMap<FieldDetail, SuperComponentInterface<?,? extends Component>> componentsByField = new HashMap<>();
+	HashMap<FieldDetail, SuperComponentInterface<?,? extends Component>> componentsByField;
 
 	SplitLayout splitLayout;
 	Div toolbar;
 
 	Displayable currentDisplayable;
 	List<Displayable> displayables = new ArrayList<>();
+	
+	List< PushyView> lazyComponents = new ArrayList<>();
 
 	HashMap<FieldDetail, PropertyDescriptor> propDescriptorByField = new HashMap<>();
 
+	
 	public SplitView() throws InvalidFieldDescriptorException, InvalidActionDescriptorException {
 		super();
 
+		generateView();
+		
+	}
+
+	private void generateView() throws InvalidFieldDescriptorException, InvalidActionDescriptorException {
+
+		cancel = new Button("Cancel");
+		btnSave = new Button("Save");
+		btnDelete = new Button("Delete");
+		formComponents = new ArrayList<>();
+		componentsByField = new HashMap<>();
+		
 		Class<?> cl = UserContextFactory.getCurrentUserContext().getCurrentClass();
 		if (cl != null) {
 			pageTitle = cl.getName();
@@ -142,8 +159,16 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 			}
 
 		}
+		if(viewClazz == null) {
+			UI.getCurrent().navigate("hello");
+		}
 		modelClazz = viewClazz.getAnnotation(MainEntity.class).value();
+		
 		Class<Displayable> clazz = (Class<Displayable>) modelClazz;
+		
+        UI.getCurrent().getPage().getHistory().pushState(null, "");
+
+		
 		binder = new Binder<>(clazz);
 //		binder.wr
 
@@ -245,6 +270,11 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 				populateForm(oDisplayable.get());
 				splitLayout.getSecondaryComponent().setVisible(true);
 				splitLayout.setSplitterPosition(70);
+				
+				for(PushyView view : lazyComponents) {
+					view.perform();
+				}
+				
 			}
 		});
 
@@ -384,6 +414,7 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 
 			
 			component = new RichTextEditorComponent(field);
+			lazyComponents.add((PushyView)component.getComponent());
 			break;
 		
 		case Input.TEXT_AREA:
@@ -583,8 +614,20 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 	@Override
 	public void afterNavigation(AfterNavigationEvent event) {
 		// TODO Auto-generated method stub
-		Location location = event.getLocation();
-		QueryParameters queryParameters = location.getQueryParameters();
+
+	}
+
+	public void reloadView() {
+		formLayout.removeAll();
+		this.removeAll();
+		try {
+			generateView();
+		} catch (InvalidFieldDescriptorException | InvalidActionDescriptorException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+//		Location location = event.getLocation();
+//		QueryParameters queryParameters = location.getQueryParameters();
 
 		displayableService = serviceProxy.getInstance(modelClazz);
 		displayables = displayableService.getAll();
@@ -601,7 +644,7 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 		}else {
 			pageTitle = application.getAppLabelKey();
 		}
-
+//			pagetit
 	}
 
 	private List<SuperComponentInterface<?,? extends Component>> findEntityFieldsComponents() {
@@ -620,6 +663,8 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 
 	@Override
 	public String getPageTitle() {
+		reloadView();
+
 		return pageTitle;
 	}
 

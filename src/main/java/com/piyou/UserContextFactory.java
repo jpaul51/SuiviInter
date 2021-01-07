@@ -5,8 +5,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
-import com.piyou.backend.model.Displayable;
-
 @Component
 public class UserContextFactory implements ApplicationContextAware{
 
@@ -19,7 +17,7 @@ public class UserContextFactory implements ApplicationContextAware{
 		return userContext;
 	}
 	
-	public void setApplicationContext(Class<? extends Displayable> clazz) {
+	public void setApplicationContext(Class<? extends com.piyou.views.model.Application> clazz) {
 		if(userContext == null) {
 			userContext = new UserContext();
 		}

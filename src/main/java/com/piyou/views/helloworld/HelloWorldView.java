@@ -82,8 +82,12 @@ public class HelloWorldView extends Div {
         FormLayout f = new FormLayout();
         LazyVerticalLayout layout = new LazyVerticalLayout();
 
-//        RichTextEditorComponent r = new RichTextEditorComponent(null);
+        RichTextEditorComponent r = new RichTextEditorComponent(null);
       
+        Div d = new Div();
+//        Panel
+//        layout.add(d);
+        
 //        layout.addComponent((Component) r.getComponent());
 //        layout.addComponent(f);
         

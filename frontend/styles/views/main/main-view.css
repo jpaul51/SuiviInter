@@ -42,3 +42,28 @@ vaadin-tab[selected] {
   background-color: var(--lumo-primary-color-10pct);
   color: var(--lumo-primary-text-color);
 }
+
+.richEditorConainer{
+	padding:0px;
+}
+
+.menuDiv{
+	vertical-align: middle
+}
+
+.menuDiv a{
+	display: flex;
+    width: 100%;
+    align-items: center;
+    height: 100%;
+    margin: -0.5rem -0.75rem;
+    padding: 0.5rem 0.75rem;
+    outline: none;
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+
+
+
+

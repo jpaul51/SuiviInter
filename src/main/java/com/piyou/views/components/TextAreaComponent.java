@@ -12,6 +12,7 @@ public class TextAreaComponent extends AbstractSimpleSuperComponent<String> {
 	public TextAreaComponent(FieldDetail field) {
 		super();
 		component = new TextArea();
+		
 	}
 	
 	public TextAreaComponent(FieldDetail field,String label) {
@@ -35,6 +36,7 @@ public class TextAreaComponent extends AbstractSimpleSuperComponent<String> {
 		if(value == null)
 			value="";
 		component.setValue(value);	
+
 		
 	}
 	

@@ -3,11 +3,13 @@ package com.piyou.views.main;
 import java.util.Arrays;
 import java.util.Optional;
 
+import com.piyou.UserContextFactory;
 import com.piyou.views.about.AboutView;
 import com.piyou.views.descriptors.InterventionDescriptor;
 import com.piyou.views.descriptors.PersonDescriptor;
 import com.piyou.views.descriptors.ProjectDescriptor;
 import com.piyou.views.helloworld.HelloWorldView;
+import com.piyou.views.helloworld.PushyView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -22,6 +24,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.HighlightCondition;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.RouterLayout;
@@ -89,39 +93,48 @@ public class MainView extends AppLayout implements RouterLayout {
         tabs.addThemeVariants(TabsVariant.LUMO_MINIMAL);
         tabs.setId("tabs");
         tabs.add(createMenuItems());
+        
+        RouterLink rt = new RouterLink();
+    	Div menuDiv = createMenuDiv("Projet", rt);
     	
-    	Div menuDiv = new Div();
-    	RouterLink rt = new RouterLink();
-    	rt.setText("Projet");
-    	menuDiv.add(rt);
-    	menuDiv.add(new RouterLink());
+    	rt.setHighlightCondition(new HighlightCondition<RouterLink>() {
+			
+			@Override
+			public boolean shouldHighlight(RouterLink t, AfterNavigationEvent event) {
+				boolean a = UserContextFactory.getCurrentUserContext().getCurrentClass() != null && 
+						UserContextFactory.getCurrentUserContext().getCurrentClass().equals(ProjectDescriptor.class);
+				return a;
+			}
+		});
+    	
 
-    	
-    	Div menuPersonDiv = new Div();
     	RouterLink rtPerson = new RouterLink();
-    	rtPerson.setText("Users");
-    	menuPersonDiv.add(rtPerson);
-    	
-    	Div menuInterDiv = new Div();
+    	Div menuPersonDiv = createMenuDiv("Users", rtPerson);
+
     	RouterLink rtInter = new RouterLink();
-    	rtInter.setText("Interventions");
-    	menuInterDiv.add(rtInter);
+    	Div menuInterDiv = createMenuDiv("Interventions", rtInter);
+    	
+    	
     	
     	menuInterDiv.addClickListener(c -> {
-    		DetailViewFactory dvf = new DetailViewFactory(InterventionDescriptor.class);
+    		SplitViewFactory dvf = new SplitViewFactory(InterventionDescriptor.class);
     		dvf.show();
+    		viewTitle.setText(dvf.getAppTitle());
     	});
     	
     	menuPersonDiv.addClickListener(e -> {
-    		DetailViewFactory dvf = new DetailViewFactory(PersonDescriptor.class);
+    		SplitViewFactory dvf = new SplitViewFactory(PersonDescriptor.class);
     		dvf.show();
+    		viewTitle.setText(dvf.getAppTitle());
     	});
     	
     	
     	menuDiv.add(new RouterLink());
     	menuDiv.addClickListener(e -> {
-    		DetailViewFactory dvf = new DetailViewFactory(ProjectDescriptor.class);
+    		SplitViewFactory dvf = new SplitViewFactory(ProjectDescriptor.class);
     		dvf.show();
+    		viewTitle.setText(dvf.getAppTitle());
+    		
     	});
     	
     	tabs.add(createTab(menuDiv), createTab(menuPersonDiv), createTab(menuInterDiv));
@@ -130,13 +143,32 @@ public class MainView extends AppLayout implements RouterLayout {
         return tabs;
     }
 
+	private Div createMenuDiv(String label, RouterLink rt) {
+		Div menuDiv = new Div();
+    	menuDiv.setWidthFull();
+    	menuDiv.setHeightFull();
+    	menuDiv.addClassName("menuDiv");
+    	
+    	rt.setText(label);
+//    	rt.getElement().getStyle()
+    	
+    	menuDiv.add(rt);
+//    	menuDiv.add(new RouterLink());
+		return menuDiv;
+	}
+
     private Component[] createMenuItems() {
+    	
+    	
+    	RouterLink aboutRt = new RouterLink("About", AboutView.class);
+    	RouterLink pushRt = new RouterLink("Push", PushyView.class);
+    	
     	
     	
         RouterLink[] links = new RouterLink[] {
             new RouterLink("Hello World", HelloWorldView.class),
-            new RouterLink("About", AboutView.class),
-            new RouterLink("Interventions", InterventionsDetailView.class),
+            aboutRt,
+//            new RouterLink("Push", PushyView.class),
 //            new RouterLink("Utilisateurs", PersonDetailView.class), 
 //            new RouterLink("bim", DetailView.class, ProjectDescriptor.class.getCanonicalName()), 
 //            new RouterLink("bim", DetailView.class, PersonDescriptor.class.getCanonicalName()), 
