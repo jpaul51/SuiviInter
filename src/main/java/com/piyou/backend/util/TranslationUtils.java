@@ -31,16 +31,18 @@ public class TranslationUtils {
 		translations = translationService.getAll();
 	}
 	
+	public static void reload() {
+		translations = translationService.getAll();
+	}
+	
 	public static String translate(String key) {
 				
-		Optional<Translation> translation = translations.stream().filter(t ->{
-			return t.getLoc().equals(TranslationUtils.locale);	
-		}).filter(t -> {
-			return t.getKey().equals(key);
+		Optional<Translation> translation = translations.stream().filter(t -> {
+			return t.getKey().getValue().equals(key);
 		}).findFirst();
 		
 		if(translation.isPresent()) {
-			return translation.get().getValue();
+			return (translation.get().getTranslationByLocal(locale));
 		}else {
 			return key;
 		}

@@ -23,6 +23,7 @@ import org.vaadin.alump.lazylayouts.LazyVerticalLayout;
 import com.piyou.UserContextFactory;
 import com.piyou.backend.model.Displayable;
 import com.piyou.backend.model.Name;
+import com.piyou.backend.model.Translation;
 import com.piyou.backend.services.DisplayableService;
 import com.piyou.backend.services.ServiceProxy;
 import com.piyou.backend.util.TranslationUtils;
@@ -50,8 +51,10 @@ import com.piyou.views.model.Input;
 import com.piyou.views.model.TableLayoutManager;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.HtmlComponent;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyModifier;
+import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -126,7 +129,7 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 	Displayable currentDisplayable;
 	List<Displayable> displayables = new ArrayList<>();
 	
-	List< PushyView> lazyComponents = new ArrayList<>();
+	List<PushyView> lazyComponents = new ArrayList<>();
 
 	HashMap<FieldDetail, PropertyDescriptor> propDescriptorByField = new HashMap<>();
 
@@ -249,7 +252,11 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 				c = grid.addColumn(createGridColumns(column));
 			}
 			
-			c.setHeader(TranslationUtils.translate(column.getTranslationKey()));
+			HtmlComponent htmlHeader = new HtmlComponent(Tag.H3);
+			htmlHeader.getElement().setText(TranslationUtils.translate(column.getTranslationKey()));
+			htmlHeader.addClassName("gridHeader");
+			c.setHeader(htmlHeader);
+			
 			createBinder(column);
 
 		}
@@ -271,9 +278,7 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 				splitLayout.getSecondaryComponent().setVisible(true);
 				splitLayout.setSplitterPosition(70);
 				
-				for(PushyView view : lazyComponents) {
-					view.perform();
-				}
+				loadLazyComponents();
 				
 			}
 		});
@@ -283,6 +288,12 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 
 //		splitLayout.getSecondaryComponent().setVisible(true);
 		this.add(splitLayout);
+	}
+
+	private void loadLazyComponents() {
+		for(PushyView view : lazyComponents) {
+			view.perform();
+		}
 	}
 
 	private Optional<Object> createGridColumns(FieldDetail column, Displayable disp) {
@@ -310,9 +321,6 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 		
 		ret = Optional.ofNullable(res);
 		
-		
-		
-		
 		return ret;
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -339,6 +347,7 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 			grid.deselectAll();
 			grid.asSingleSelect().clear();
 			splitLayout.getSecondaryComponent().setVisible(true);
+			loadLazyComponents();
 		});
 
 		toolbar.getStyle().set("padding", "var(--lumo-space-s) var(--lumo-space-l)");
@@ -367,6 +376,7 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 
 	private ValueProvider<Displayable, ?> createGridColumns(FieldDetail column) {
 		return disp -> {
+
 			try {
 				String fieldName = column.getName();
 
@@ -381,6 +391,7 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 						}
 					}
 				}
+				
 				if (pd == null) {
 					pd = new PropertyDescriptor(fieldName, modelClazz);
 				}
@@ -409,21 +420,19 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 		 
 		switch (fieldType) {
 
+//		case Input.TEXT_INPUT_MULTIPLE:
+//			
+//			break;		
 		case Input.TEXT_RICH:
-//			LazyVerticalLayout layout = new LazyVerticalLayout();
-
-			
 			component = new RichTextEditorComponent(field);
 			lazyComponents.add((PushyView)component.getComponent());
 			break;
 		
 		case Input.TEXT_AREA:
-//			SuperComponentInterface<? extends Component, String> component;
-			 
 			component = new TextAreaComponent(field, translatedFieldLabel);
 			break;
+			
 		case Input.SELECT:
-//			SuperComponentInterface<?> component;
 			try {
 				component = new SelectComponent<>( field, viewClazz);
 			}catch(InvalidFieldDescriptorException e) {
@@ -445,8 +454,6 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 			break;
 		case Input.TEXT_INPUT:
 		default:
-//			SuperComponentInterface<? extends Component,String> component;
-			 
 			component = new TextFieldComponent(field, translatedFieldLabel);
 			break;
 
@@ -558,8 +565,8 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 					Entry<FieldDetail, PropertyDescriptor> entry = it.next();
 					FieldDetail fd = entry.getKey();
 					PropertyDescriptor pd = entry.getValue();
-
-					pd.getWriteMethod().invoke(currentDisplayable, componentsByField.get(fd).getValue());
+					if( fd != null && componentsByField.get(fd) != null)
+						pd.getWriteMethod().invoke(currentDisplayable, componentsByField.get(fd).getValue());
 				}
 
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
@@ -570,7 +577,9 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 		}
 		try {
 
-			application.getAction().stream().filter(a -> a.getActionType().equals(ActionType.SUBMIT)).forEach(a ->{
+			application.getAction().stream().filter(a ->{				
+				return a.getActionType().equals(ActionType.SUBMIT) & a.isBefore();
+			}).forEach(a ->{
 				Iterator<Entry<FieldDetail, Object>> updates = a.getUpdates().entrySet().iterator();
 				
 				while(updates.hasNext()) {
@@ -595,8 +604,14 @@ public class SplitView extends AbstractView implements HasUrlParameter<String> {
 			
 			binder.writeBean(currentDisplayable);
 
-			
 			displayableService.update(currentDisplayable);
+			
+			
+			application.getAction().stream().filter(a ->{				
+				return a.getActionType().equals(ActionType.SUBMIT) & !a.isBefore();
+			}).forEach(a -> a.getServiceAction().accept(serviceProxy.getInstance(Translation.class)));;
+
+			
 			populateForm(currentDisplayable);
 			if (!isNew) {
 				grid.getDataProvider().refreshItem(currentDisplayable);

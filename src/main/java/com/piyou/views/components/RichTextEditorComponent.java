@@ -88,7 +88,7 @@ public class RichTextEditorComponent extends AbstractSimpleSuperComponent<String
 	@Override
 	public void setReadOnly(boolean readOnly) {
 		// TODO Auto-generated method stub
-		
+//		p.setReadOnly(true);
 	}
 
 	@Override

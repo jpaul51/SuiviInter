@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import com.piyou.backend.model.Intervention;
 import com.piyou.backend.model.Person;
 import com.piyou.backend.model.Project;
+import com.piyou.backend.model.Translation;
 
 @Component
 public class ServiceProxy implements ApplicationContextAware{
@@ -30,6 +31,10 @@ public class ServiceProxy implements ApplicationContextAware{
 	@Autowired 
 	@Qualifier("Person")
 	private DisplayableService personService;
+	
+	@Autowired 
+	@Qualifier("Translation")
+	private TranslationService translationService;
 
 	
 	
@@ -37,7 +42,8 @@ public class ServiceProxy implements ApplicationContextAware{
 	public enum ServiceStore {
 		PROJECT("Project", Project.class),
 	    INTERVENTION("Intervention", Intervention.class),
-	    PERSON("Person", Person.class);
+	    PERSON("Person", Person.class),
+	    TRANSLATION("Translation", Translation.class);
 
 	    private String serviceName;
 	    private Class<?> clazz;

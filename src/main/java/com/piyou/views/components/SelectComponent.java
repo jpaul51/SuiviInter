@@ -1,17 +1,23 @@
 package com.piyou.views.components;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.piyou.backend.model.Displayable;
+import com.piyou.backend.model.SimpleDisplayable;
+import com.piyou.backend.model.Translation;
 import com.piyou.backend.services.ServiceProxy;
 import com.piyou.backend.util.TranslationUtils;
+import com.piyou.views.descriptors.EAppFieldsTranslation;
 import com.piyou.views.descriptors.InvalidFieldDescriptorException;
 import com.piyou.views.descriptors.MainEntity;
 import com.piyou.views.model.Application;
 import com.piyou.views.model.FieldDetail;
-import com.vaadin.flow.component.HasValue.ValueChangeEvent;
-import com.vaadin.flow.component.HasValue.ValueChangeListener;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.shared.Registration;
 
@@ -21,18 +27,54 @@ public class SelectComponent<V extends Displayable> extends AbstractSuperDisplay
 
 	Class<? extends Displayable> fieldMainEntity;
 
+	List<? extends Displayable> valueProvider;
+	//TODO: enum list to Displayable!
+	
+//	List<CharSequence> values = new ArrayList<>();
+	
+//	Enum selectedEnum;
+
 	public SelectComponent(FieldDetail field, Class<? extends Application> viewClazz)
 			throws InvalidFieldDescriptorException {
 		super();
 		Class<? extends Application> descriptor = field.getEntityDescriptor();
 
-		if (descriptor.getAnnotation(MainEntity.class) == null) {
-			throw new InvalidFieldDescriptorException("La propriété entity est obligatoire pour un select");
+		if (descriptor == null &&  field.getValueProviders() == null) {
+			throw new InvalidFieldDescriptorException("Select components need an entity Descriptor ora valueProvider");
 		}
 
-		fieldMainEntity = descriptor.getAnnotation(MainEntity.class).value();
-		select.setItemLabelGenerator(i -> i.getLabel());
+		if (field.getValueProviders() != null) {
+			
+			List<Displayable> displayables = new ArrayList<Displayable>();
+			for(Class<? extends Enum> clazz : field.getValueProviders()) {
+//				try {
+//					 Enum e = clazz.getConstructor().newInstance();
+					List<String> enumsValue = Arrays.asList(clazz.getEnumConstants()).stream().map(e -> e.name()).collect(Collectors.toList());
+					 	displayables.addAll( enumsValue.stream().map(s -> {
+						SimpleDisplayable t = new SimpleDisplayable(s);
+						return t;
+						}).collect(Collectors.toList()));
+					
+			}
+			select.setItems((Collection<V>) displayables);
+			select.setItemLabelGenerator(i -> i.getLabel());
+			fieldMainEntity = SimpleDisplayable.class;
 
+//			valueProviders = field.getValueProviders();
+//			select.setItemLabelGenerator(i -> i.getValues().stream()
+//					.filter(e ->{return e.equals(selectedEnum);}).findFirst().map(o ->{
+//						return o.toString();
+//					}).orElseThrow( IllegalStateException::new));
+					
+		} else {
+
+			fieldMainEntity = descriptor.getAnnotation(MainEntity.class).value();
+			select.setItemLabelGenerator(i -> i.getLabel());
+
+			
+
+		}
+		
 		try {
 			Application appDescriptor = viewClazz.getConstructor().newInstance();
 			Optional<FieldDetail> matchingField = appDescriptor.getAllFields().stream().filter(f -> f.equals(field))
@@ -41,13 +83,13 @@ public class SelectComponent<V extends Displayable> extends AbstractSuperDisplay
 				select.setLabel(TranslationUtils.translate(matchingField.get().getTranslationKey()));
 			}
 
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-//		select.setLabel(label);
+		
+		// select.setLabel(label);
 		select.addBlurListener(b -> {
 
 		});
@@ -62,11 +104,19 @@ public class SelectComponent<V extends Displayable> extends AbstractSuperDisplay
 	@Override
 	public void initialize(ServiceProxy serviceProxy) {
 		super.initialize(serviceProxy);
-		select.setItems(serviceProxy.getInstance(fieldMainEntity).getAll());
 
-		select.addCustomValueSetListener(l -> {
-			System.out.println("gg");
-		});
+		if (valueProvider != null) {
+			
+			
+			
+		} else {
+
+			select.setItems(serviceProxy.getInstance(fieldMainEntity).getAll());
+
+			select.addCustomValueSetListener(l -> {
+				System.out.println("gg");
+			});
+		}
 
 //			SelectComponent.this.fireEvent<2>(new ComponentEvent(select.getParent().get(),
 //					Integer.parseInt(Long.toString(ComponentEvent.WINDOW_FOCUS_EVENT_MASK))));
@@ -125,7 +175,7 @@ public class SelectComponent<V extends Displayable> extends AbstractSuperDisplay
 	@Override
 	public void setFieldDetail(FieldDetail field) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override

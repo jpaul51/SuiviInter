@@ -1,18 +1,42 @@
 package com.piyou.backend.model;
 
+import java.io.Serializable;
 import java.util.Locale;
 
+import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
+
+import com.piyou.views.descriptors.ESupportedLocales;
 
 @Entity
-public class Translation {
+public class Translation implements Serializable, Displayable {
 
 	@Id
+	@GeneratedValue
 	Long id;
-	String key;
-	String value;
-	Locale loc;
+    @Convert(converter = SimpleDisplayableConverter.class)
+	SimpleDisplayable key;
+	String frenchValue;
+	String englishValue;
+	
+//	HashMap<Locale,String> transLationByLocale;
+	
+	
+	
+	public String getTranslationByLocal(Locale loc) {
+		String ret = null;
+		
+		if(loc.equals(ESupportedLocales.FRANCE.getLocale()))
+			ret = frenchValue;
+		else
+			ret = englishValue;
+		
+		return ret;
+	}
+	
 	
 	public Long getId() {
 		return id;
@@ -20,60 +44,43 @@ public class Translation {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getKey() {
+	
+
+	
+
+
+
+	public SimpleDisplayable getKey() {
 		return key;
 	}
-	public void setKey(String key) {
+
+
+	public void setKey(SimpleDisplayable key) {
 		this.key = key;
 	}
-	public String getValue() {
-		return value;
+
+
+	public String getFrenchValue() {
+		return frenchValue;
 	}
-	public void setValue(String value) {
-		this.value = value;
+	public void setFrenchValue(String frenchValue) {
+		this.frenchValue = frenchValue;
 	}
-	public Locale getLoc() {
-		return loc;
+	public String getEnglishValue() {
+		return englishValue;
 	}
-	public void setLoc(Locale loc) {
-		this.loc = loc;
+	public void setEnglishValue(String englishValue) {
+		this.englishValue = englishValue;
 	}
 	
+	
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((key == null) ? 0 : key.hashCode());
-		result = prime * result + ((loc == null) ? 0 : loc.hashCode());
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
-		return result;
+	public String getLabel() {
+		return key.getLabel();
 	}
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Translation other = (Translation) obj;
-		if (key == null) {
-			if (other.key != null)
-				return false;
-		} else if (!key.equals(other.key))
-			return false;
-		if (loc == null) {
-			if (other.loc != null)
-				return false;
-		} else if (!loc.equals(other.loc))
-			return false;
-		if (value == null) {
-			if (other.value != null)
-				return false;
-		} else if (!value.equals(other.value))
-			return false;
-		return true;
-	}
+	
+
+
 	
 	
 	

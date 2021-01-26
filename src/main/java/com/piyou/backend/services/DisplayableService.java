@@ -12,4 +12,12 @@ public interface DisplayableService {
 	
 	public <T extends Displayable> void delete(T d);
 	
+	/**
+	 * Used for refreshing context data from newly inserted values
+	 * For example: reload translation list after edition
+	 */
+	default public  void reloadContext() {
+		
+	}
+	
 }

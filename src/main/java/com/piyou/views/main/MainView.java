@@ -8,6 +8,7 @@ import com.piyou.views.about.AboutView;
 import com.piyou.views.descriptors.InterventionDescriptor;
 import com.piyou.views.descriptors.PersonDescriptor;
 import com.piyou.views.descriptors.ProjectDescriptor;
+import com.piyou.views.descriptors.TranslationDescriptor;
 import com.piyou.views.helloworld.HelloWorldView;
 import com.piyou.views.helloworld.PushyView;
 import com.vaadin.flow.component.Component;
@@ -114,7 +115,8 @@ public class MainView extends AppLayout implements RouterLayout {
     	RouterLink rtInter = new RouterLink();
     	Div menuInterDiv = createMenuDiv("Interventions", rtInter);
     	
-    	
+    	RouterLink rtTranslation = new RouterLink();
+    	Div menuTranslationDiv = createMenuDiv("Translations", rtTranslation);
     	
     	menuInterDiv.addClickListener(c -> {
     		SplitViewFactory dvf = new SplitViewFactory(InterventionDescriptor.class);
@@ -137,7 +139,14 @@ public class MainView extends AppLayout implements RouterLayout {
     		
     	});
     	
-    	tabs.add(createTab(menuDiv), createTab(menuPersonDiv), createTab(menuInterDiv));
+    	menuTranslationDiv.addClickListener(e -> {
+    		SplitViewFactory dvf = new SplitViewFactory(TranslationDescriptor.class);
+    		dvf.show();
+    		viewTitle.setText(dvf.getAppTitle());
+    		
+    	});
+    	
+    	tabs.add(createTab(menuDiv), createTab(menuPersonDiv), createTab(menuInterDiv), createTab(menuTranslationDiv));
 
 
         return tabs;

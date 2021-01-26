@@ -1,5 +1,8 @@
 package com.piyou.views.model;
 
+import java.util.List;
+
+
 public class FieldDetail {
 
 	String type = Input.TEXT_INPUT;
@@ -7,6 +10,11 @@ public class FieldDetail {
 	String translationKey;
 	
 	Class<? extends Application > entityDescriptor;
+
+	List<Class<?  extends Enum>> valueProviders;
+	
+//	Class<Enum<? extends Enum>> keyProvider;
+
 	
 	Boolean readOnly = false;
 	boolean hidden = false;
@@ -87,6 +95,16 @@ public class FieldDetail {
 		this.entityDescriptor = entity;
 	}
 
+	
+
+	public List<Class<? extends Enum>> getValueProviders() {
+		return valueProviders;
+	}
+
+	public void setValueProviders(List<Class<? extends Enum>> valueProviders) {
+		this.valueProviders = valueProviders;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -150,8 +168,15 @@ public class FieldDetail {
 			return false;
 		return true;
 	}
-	
-	
+//
+//	public Class<Enum<? extends Enum>> getKeyProvider() {
+//		return keyProvider;
+//	}
+//
+//	public void setKeyProvider(Class<Enum<? extends Enum>> keyProvider) {
+//		this.keyProvider = keyProvider;
+//	}
+
 	
 	
 	
